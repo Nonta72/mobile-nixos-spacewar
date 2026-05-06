@@ -10,8 +10,8 @@
           src = fetchFromGitHub {
             owner = "sc7280-mainline";
             repo = "alsa-ucm-conf";
-            rev = "e2f6767c294c458a2b02214d5c74460b1c50eed8";
-            sha256 = "sha256-FYy9/18QdRgMWzNyoCG3P7x3gU/DnnBQGlPdQHks53Q=";
+            rev = "c6fdb24805b75b47a0dc415ba199563b20fad42d";
+            sha256 = "sha256-zsCRqgrzq3V+ICPrpMEthGhJecpGKoM6MD0hZmZqS6Q=";
           };
         } ''
           mkdir -p $out/share/
