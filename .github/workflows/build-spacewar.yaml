@@ -34,18 +34,10 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             extra-platforms = aarch64-linux
-            substituters = https://cache.nixos.org https://nix-community.cachix.org
-            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCUSPs=
+            substituters = https://cache.nixos.org
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
             min-free = 5368709120
             max-free = 10737418240
-
-      - name: Set up Cachix
-        uses: cachix/cachix-action@v15
-        with:
-          name: mobile-nixos-spacewar
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-          # Push newly built paths to cache so future runs are fast
-          pushFilter: '-source$'
 
       - name: Set up QEMU for aarch64
         uses: docker/setup-qemu-action@v3
