@@ -1,0 +1,94 @@
+name: Build Nothing Phone (1)
+
+on:
+  push:
+    branches: [ "development" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Free disk space (aggressive)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false  # Keep swap, Nix may need it
+
+      - name: Show available disk space
+        run: df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
+            substituters = https://cache.nixos.org https://nix-community.cachix.org
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCUSPs=
+            min-free = 5368709120
+            max-free = 10737418240
+
+      - name: Set up Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: mobile-nixos-spacewar
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          # Push newly built paths to cache so future runs are fast
+          pushFilter: '-source$'
+
+      - name: Set up QEMU for aarch64
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Build android-fastboot-images
+        run: |
+          nix-build examples/hello \
+            --argstr device nothing-spacewar \
+            -A outputs.android-fastboot-images \
+            --no-out-link \
+            --show-trace \
+            -j$(nproc) \
+            2>&1 | tee build.log
+
+      - name: Copy output images
+        run: |
+          mkdir -p output
+          cp -v $(nix-build examples/hello \
+            --argstr device nothing-spacewar \
+            -A outputs.android-fastboot-images \
+            --no-out-link)/* output/
+          ls -lh output/
+
+      - name: Upload boot.img
+        uses: actions/upload-artifact@v4
+        with:
+          name: nothing-spacewar-boot
+          path: output/boot.img
+          retention-days: 30
+
+      - name: Upload system.img
+        uses: actions/upload-artifact@v4
+        with:
+          name: nothing-spacewar-system
+          path: output/system.img
+          retention-days: 30
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 7
