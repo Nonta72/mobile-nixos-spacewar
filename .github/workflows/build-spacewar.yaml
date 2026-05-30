@@ -44,7 +44,7 @@ jobs:
 
       - name: Build android-fastboot-images
         run: |
-          nix-build examples/hello \
+          nix-build examples/installer \
             --argstr device nothing-spacewar \
             -A outputs.android-fastboot-images \
             --no-out-link \
@@ -55,7 +55,7 @@ jobs:
       - name: Copy output images
         run: |
           mkdir -p output
-          cp -v $(nix-build examples/hello \
+          cp -v $(nix-build examples/installer \
             --argstr device nothing-spacewar \
             -A outputs.android-fastboot-images \
             --no-out-link)/* output/
