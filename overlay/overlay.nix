@@ -78,8 +78,10 @@ in
   # All that follows will have to be cleaned and then upstreamed.
   #
 
-  # No such fixes as of now, this comment is merely a placeholder to keep the general structure.
-
+libqmi = super.libqmi.overrideAttrs (old: {
+    mesonFlags = (old.mesonFlags or []) ++ [ "-Dgtk_doc=false" "-Dintrospection=false" ];
+  });
+  
   # Things specific to mobile-nixos.
   # Not necessarily internals, but they probably won't go into <nixpkgs>.
   mobile-nixos = {

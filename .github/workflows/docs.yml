@@ -1,8 +1,6 @@
 name: Documentation
 on:
-  pull_request:
-  push:
-  workflow_call:
+  workflow_dispatch:
 
 jobs:
   Documentation:
